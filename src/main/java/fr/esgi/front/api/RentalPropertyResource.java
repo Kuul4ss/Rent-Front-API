@@ -3,6 +3,7 @@ package fr.esgi.front.api;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.esgi.front.beans.RentalProperty;
+import fr.esgi.front.configuration.HttpClientSingleton;
 import fr.esgi.front.dto.response.RentalPropertyResponseDto;
 import fr.esgi.front.mapper.RentalPropertyDtoMapper;
 import jakarta.inject.Inject;
@@ -19,23 +20,19 @@ import java.util.List;
 @Path("/rental-properties")
 public class RentalPropertyResource {
     private final RentalPropertyDtoMapper rentalPropertyDtoMapper;
-    private final HttpClient httpClient;
+
+    private final HttpClient httpClient = HttpClientSingleton.getInstance();
 
     private final String url;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
-
-
     @Inject
-    public RentalPropertyResource(RentalPropertyDtoMapper rentalPropertyDtoMapper, HttpClient httpClient, String url) {
+    public RentalPropertyResource(RentalPropertyDtoMapper rentalPropertyDtoMapper, String url) {
         this.rentalPropertyDtoMapper = rentalPropertyDtoMapper;
-        this.httpClient = httpClient;
         this.url = url;
     }
 
     @GET
-    @Path("/rental-properties")
     public List<RentalPropertyResponseDto> getRentalProperties() {
         List<RentalProperty> rentalProperties = null;
         String url = this.url + "/rental-properties";
@@ -49,7 +46,7 @@ public class RentalPropertyResource {
                 rentalProperties = objectMapper.readValue(responseBody, new TypeReference<List<RentalProperty>>() {});
             }
         } catch (IOException | InterruptedException e) {
-            // Handle the exception
+
         }
 
         return rentalPropertyDtoMapper.mapToDtoList(rentalProperties);
